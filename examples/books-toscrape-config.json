@@ -1,0 +1,56 @@
+{
+  "startUrls": ["http://books.toscrape.com/catalogue/category/books/science_22/index.html"],
+  "selectors": {
+    "listPage": {
+      "items": ".product_pod",
+      "nextPage": ".next a",
+      "maxPages": 2
+    },
+    "detailPage": {
+      "fields": {
+        "title": {
+          "selector": ".product_main h1",
+          "extract": "text"
+        },
+        "price": {
+          "selector": ".price_color",
+          "extract": "text"
+        },
+        "availability": {
+          "selector": ".availability",
+          "extract": "text"
+        },
+        "description": {
+          "selector": "#product_description + p",
+          "extract": "text"
+        },
+        "category": {
+          "selector": ".breadcrumb li:nth-child(3) a",
+          "extract": "text"
+        },
+        "rating": {
+          "selector": ".star-rating",
+          "extract": "attribute",
+          "attribute": "class"
+        },
+        "image": {
+          "selector": ".item img",
+          "extract": "attribute",
+          "attribute": "src"
+        }
+      }
+    }
+  },
+  "output": {
+    "type": "json",
+    "path": "./data/books-science.json"
+  },
+  "behavior": {
+    "requestDelay": 1000,
+    "timeout": 30000,
+    "javascript": true,
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+  }
+}

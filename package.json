@@ -1,0 +1,35 @@
+{
+  "name": "js_web_crawler",
+  "version": "1.0.0",
+  "description": "基于playwright的爬虫项目",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "npx ts-node src/main.ts",
+    "crawl": "npx ts-node src/main.ts --config",
+    "crawl-all": "npx ts-node src/main.ts --config examples",
+    "example": "npx ts-node src/main.ts --config examples/books-toscrape-config.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Terminal017/JS_web_crawler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Terminal017/JS_web_crawler/issues"
+  },
+  "homepage": "https://github.com/Terminal017/JS_web_crawler#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^24.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "playwright": "^1.54.1"
+  }
+}

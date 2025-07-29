@@ -1,0 +1,93 @@
+{
+  "startUrls": [
+    "https://web.senate.gov.ph/lis/journal.aspx?congress=19&session=1R&q=77"
+  ],
+  "selectors": {
+    "listPage": {
+      "items": ".",
+      "nextPage": "",
+      "maxPages": 1
+    },
+    "detailPage": {
+      "fields": {
+        "id": {
+          "selector": ".article-id",
+          "extract": "text"
+        },
+        "title": {
+          "selector": ".article-title",
+          "extract": "text"
+        },
+        "href": {
+          "selector": "link[rel='canonical']",
+          "extract": "attribute",
+          "attribute": "href"
+        },
+        "content": {
+          "type": "object",
+          "fields": {
+            "author": {
+              "selector": ".article-author",
+              "extract": "text"
+            },
+            "date": {
+              "selector": ".article-date",
+              "extract": "text"
+            },
+            "textContent": {
+              "selector": ".article-content",
+              "extract": "html"
+            },
+            "category": {
+              "selector": ".article-category",
+              "extract": "text"
+            },
+            "tags": {
+              "selector": ".article-tags .tag",
+              "extract": "text",
+              "multiple": true
+            }
+          }
+        },
+        "pdfLink": {
+          "selector": ".pdf-download a",
+          "extract": "attribute",
+          "attribute": "href"
+        }
+      }
+    }
+  },
+  "output": {
+    "type": "json",
+    "path": "./data/news-articles.json"
+  },
+  "behavior": {
+    "requestDelay": 2000,
+    "timeout": 30000,
+    "javascript": true,
+    "browserType": "chromium",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+    }
+  },
+  "postProcess": {
+    "transformOutput": true,
+    "outputFormat": [
+      {
+        "id": "$.data.id",
+        "title": "$.data.title",
+        "href": "$.data.href",
+        "content": {
+          "author": "$.data.content.author",
+          "date": "$.data.content.date",
+          "textContent": "$.data.content.textContent",
+          "category": "$.data.content.category",
+          "tags": "$.data.content.tags"
+        },
+        "PDF": "$.data.pdfLink"
+      }
+    ]
+  }
+}
