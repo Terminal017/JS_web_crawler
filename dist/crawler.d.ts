@@ -40,6 +40,12 @@ export declare class Crawler {
      */
     private extractField;
     /**
+     * 将相对URL转换为绝对URL
+     * @param url 要转换的URL
+     * @param baseUrl 基础URL
+     */
+    private resolveUrl;
+    /**
      * 处理默认值中的占位符
      * @param defaultValue 默认值字符串
      * @param currentUrl 当前页面URL

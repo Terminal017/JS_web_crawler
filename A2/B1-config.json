@@ -1,10 +1,11 @@
 {
-  "startUrls": ["https://www.example.com/"],
+  "startUrls": [
+    "https://web.senate.gov.ph/lis/journal.aspx?congress=19&session=1R&q=77"
+  ],
   "selectors": {
     "listPage": {
-      "items": "selector(不加a)",
-      "nextPage": "selector(下一页)",
-      "maxPages": 2,
+      "items": "ul.lis_ul > li",
+      "maxPages": 1,
       "itemLink": {
         "selector": "a",
         "extract": "attribute",
@@ -17,7 +18,7 @@
           "default": "{{filename}}"
         },
         "title": {
-          "selector": "标题选择器",
+          "selector": "div.lis_doctitle > p",
           "extract": "text"
         },
         "href": {
@@ -32,17 +33,22 @@
               "default": "unknown"
             },
             "article": {
-              "selector": "文章选择器",
+              "selector": "#content > blockquote",
               "extract": "text"
             }
           }
+        },
+        "PDF": {
+          "selector": "#lis_download > ul > li > a",
+          "extract": "attribute",
+          "attribute": "href"
         }
       }
     }
   },
   "output": {
     "type": "json",
-    "path": "./data/example.json（请更改）"
+    "path": "./data/B1.json"
   },
   "behavior": {
     "requestDelay": 2000,
@@ -64,7 +70,8 @@
       "content": {
         "author": "$.content.author",
         "article": "$.content.article"
-      }
+      },
+      "PDF": "$.PDF"
     }
   }
 }

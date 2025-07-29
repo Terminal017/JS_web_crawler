@@ -44,6 +44,8 @@ export interface CrawlerConfig {
     browserType?: 'chromium' | 'firefox' | 'webkit';
     /** 用户代理 */
     userAgent?: string;
+    /** 是否无头模式 */
+    headless?: boolean;
   };
 }
 

@@ -36,6 +36,12 @@
               "extract": "text"
             }
           }
+        },
+        "PDF": {
+          "selector": "PDF链接",
+          "extract": "attribute",
+          "attribute": "href",
+          "default": null
         }
       }
     }
@@ -64,7 +70,8 @@
       "content": {
         "author": "$.content.author",
         "article": "$.content.article"
-      }
+      },
+      "PDF": "$.PDF"
     }
   }
 }

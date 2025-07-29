@@ -38,7 +38,7 @@ export class Crawler {
       // 根据配置选择浏览器类型，默认使用chromium
       const browserType = this.config.behavior?.browserType || 'chromium';
       const launchOptions = {
-        headless: true,
+        headless: this.config.behavior?.headless !== false, // 默认为true，除非明确设置为false
         ...(this.config.behavior?.proxy ? { proxy: { server: this.config.behavior.proxy } } : {})
       };
 
@@ -74,7 +74,7 @@ export class Crawler {
 
       this.status.state = 'running';
       this.status.startTime = Date.now();
-      console.log('爬虫初始化完成');
+      // console.log('爬虫初始化完成');
     } catch (error) {
       this.status.state = 'error';
       this.status.error = `初始化失败: ${error}`;
@@ -108,7 +108,7 @@ export class Crawler {
 
       this.status.state = 'completed';
       this.status.runningTime = Date.now() - this.status.startTime;
-      console.log(`爬虫任务完成，共爬取 ${this.status.urlsCrawled} 个URL，保存 ${this.status.itemsSaved} 个项目`);
+      // console.log(`爬虫任务完成，共爬取 ${this.status.urlsCrawled} 个URL，保存 ${this.status.itemsSaved} 个项目`);
 
       return this.results;
     } catch (error) {
@@ -134,11 +134,11 @@ export class Crawler {
     
     // 检查是否达到最大页数限制
     if (maxPages && currentPage > maxPages) {
-      console.log(`已达到最大页数限制 (${maxPages})，停止爬取列表页`);
+      // console.log(`已达到最大页数限制 (${maxPages})，停止爬取列表页`);
       return;
     }
 
-    console.log(`爬取列表页: ${url} (第 ${currentPage} 页)`);
+    // console.log(`爬取列表页: ${url} (第 ${currentPage} 页)`);
     const page = await this.context.newPage();
 
     try {
@@ -146,14 +146,37 @@ export class Crawler {
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       this.status.urlsCrawled++;
 
-      // 等待列表项加载
-      await page.waitForSelector(items);
+      // 等待页面加载完成
+      await page.waitForTimeout(5000);
+      
+      // console.log(`正在查找选择器: ${items}`);
+      
+      // 检查选择器是否存在
+      const itemCount = await page.$$(items).then(els => els.length);
+      // console.log(`找到 ${itemCount} 个匹配的元素`);
+      
+      if (itemCount === 0) {
+        console.warn(`选择器 "${items}" 未找到任何元素`);
+        return;
+      }
 
       // 获取所有详情页链接
       const detailUrls = await page.$$eval(items, (elements, baseUrl) => {
-        return elements.map(el => {
-          const link = el.querySelector('a');
-          const href = link ? link.getAttribute('href') : null;
+        // console.log(`正在处理 ${elements.length} 个元素`);
+        return elements.map((el, index) => {
+           // 如果元素本身就是a标签
+           let href = null;
+           
+           if (el.tagName === 'A') {
+             href = (el as HTMLAnchorElement).getAttribute('href');
+           } else {
+             // 否则查找子元素中的a标签
+             const link = el.querySelector('a');
+             href = link ? link.getAttribute('href') : null;
+           }
+           
+           // console.log(`元素 ${index + 1}: href=${href}`);
+          
           if (!href) return null;
           
           // 处理相对URL
@@ -164,6 +187,9 @@ export class Crawler {
           }
         }).filter(url => url !== null) as string[];
       }, url);
+      
+      // console.log(`提取到 ${detailUrls.length} 个详情页链接:`);
+      // detailUrls.forEach((url, i) => console.log(`  ${i + 1}. ${url}`));
 
       // 爬取每个详情页
       for (const detailUrl of detailUrls) {
@@ -214,7 +240,7 @@ export class Crawler {
       return;
     }
 
-    console.log(`爬取详情页: ${url}`);
+    // console.log(`爬取详情页: ${url}`);
     const page = await this.context.newPage();
 
     try {
@@ -244,7 +270,7 @@ export class Crawler {
 
       // 添加到结果集
       this.results.push(item);
-      console.log(`成功提取数据: ${url}`);
+      // console.log(`成功提取数据: ${url}`);
     } catch (error) {
       console.error(`爬取详情页失败 ${url}:`, error);
     } finally {
@@ -312,6 +338,11 @@ export class Crawler {
             (els, attr) => els.map(el => el.getAttribute(attr) || ''), 
             attribute
           );
+          // 如果是href属性，将相对链接转换为绝对链接
+          if (attribute === 'href') {
+            const baseUrl = page.url();
+            values = values.map(url => this.resolveUrl(url, baseUrl));
+          }
           break;
       }
 
@@ -339,6 +370,10 @@ export class Crawler {
             (el, attr) => el.getAttribute(attr) || '', 
             attribute
           ).catch(() => '');
+          // 如果是href属性，将相对链接转换为绝对链接
+          if (attribute === 'href' && value) {
+            value = this.resolveUrl(value, page.url());
+          }
           break;
       }
 
@@ -348,6 +383,25 @@ export class Crawler {
       }
       
       return value;
+    }
+  }
+
+  /**
+   * 将相对URL转换为绝对URL
+   * @param url 要转换的URL
+   * @param baseUrl 基础URL
+   */
+  private resolveUrl(url: string, baseUrl: string): string {
+    try {
+      // 如果已经是绝对URL，直接返回
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+      // 使用URL构造函数将相对URL转换为绝对URL
+      return new URL(url, baseUrl).href;
+    } catch (error) {
+      console.warn(`无法解析URL: ${url}, 基础URL: ${baseUrl}`);
+      return url; // 如果解析失败，返回原始URL
     }
   }
 
@@ -377,7 +431,7 @@ export class Crawler {
    */
   private async saveResults(): Promise<void> {
     if (this.results.length === 0) {
-      console.log('没有结果可保存');
+      // console.log('没有结果可保存');
       return;
     }
 
@@ -418,7 +472,7 @@ export class Crawler {
       }
 
       this.status.itemsSaved = this.results.length;
-      console.log(`已保存 ${this.results.length} 个结果到 ${outputPath}`);
+      // console.log(`已保存 ${this.results.length} 个结果到 ${outputPath}`);
     } catch (error) {
       console.error('保存结果失败:', error);
       throw error;
@@ -444,7 +498,7 @@ export class Crawler {
       await this.browser.close();
       this.browser = null;
       this.context = null;
-      console.log('浏览器已关闭');
+      // console.log('浏览器已关闭');
     }
   }
 }
