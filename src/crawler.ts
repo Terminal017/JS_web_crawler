@@ -10,6 +10,7 @@ export class Crawler {
   private browser: Browser | null = null;
   private context: BrowserContext | null = null;
   private config: CrawlerConfig;
+  private configPath?: string;
   private results: CrawlItem[] = [];
   private status: CrawlerStatus = {
     urlsCrawled: 0,
@@ -22,9 +23,11 @@ export class Crawler {
   /**
    * 构造函数
    * @param config 爬虫配置
+   * @param configPath 配置文件路径
    */
-  constructor(config: CrawlerConfig) {
+  constructor(config: CrawlerConfig, configPath?: string) {
     this.config = config;
+    this.configPath = configPath;
   }
 
   /**
@@ -225,7 +228,7 @@ export class Crawler {
 
       for (const [fieldName, fieldSelector] of Object.entries(fields)) {
         try {
-          data[fieldName] = await this.extractField(page, fieldSelector);
+          data[fieldName] = await this.extractField(page, fieldSelector, this.configPath);
         } catch (error) {
           console.warn(`提取字段 ${fieldName} 失败:`, error);
           data[fieldName] = null;
@@ -254,14 +257,39 @@ export class Crawler {
    * @param page 页面对象
    * @param fieldSelector 字段选择器
    */
-  private async extractField(page: Page, fieldSelector: FieldSelector): Promise<any> {
-    const { selector, extract = 'text', attribute, multiple = false } = fieldSelector;
+  private async extractField(page: Page, fieldSelector: FieldSelector, configPath?: string): Promise<any> {
+    const { selector, extract = 'text', attribute, multiple = false, default: defaultValue, type, fields } = fieldSelector;
+
+    // 处理嵌套对象类型
+    if (type === 'object' && fields) {
+      const result: Record<string, any> = {};
+      for (const [fieldName, subFieldSelector] of Object.entries(fields)) {
+        try {
+          result[fieldName] = await this.extractField(page, subFieldSelector, configPath);
+        } catch (error) {
+          console.warn(`提取嵌套字段 ${fieldName} 失败:`, error);
+          result[fieldName] = subFieldSelector.default ? this.processDefaultValue(subFieldSelector.default, page.url(), configPath) : null;
+        }
+      }
+      return result;
+    }
+
+    // 如果没有selector，直接返回默认值
+    if (!selector) {
+      if (defaultValue) {
+        return this.processDefaultValue(defaultValue, page.url(), configPath);
+      }
+      return multiple ? [] : null;
+    }
 
     // 等待选择器出现
     try {
       await page.waitForSelector(selector, { timeout: 5000 });
     } catch {
-      // 如果选择器没有找到，返回null或空数组
+      // 如果选择器没有找到，使用默认值
+      if (defaultValue) {
+        return this.processDefaultValue(defaultValue, page.url(), configPath);
+      }
       return multiple ? [] : null;
     }
 
@@ -321,6 +349,27 @@ export class Crawler {
       
       return value;
     }
+  }
+
+  /**
+   * 处理默认值中的占位符
+   * @param defaultValue 默认值字符串
+   * @param currentUrl 当前页面URL
+   * @param configPath 配置文件路径
+   */
+  private processDefaultValue(defaultValue: string, currentUrl: string, configPath?: string): string {
+    let result = defaultValue;
+    
+    // 替换{{currentUrl}}占位符
+    result = result.replace(/\{\{currentUrl\}\}/g, currentUrl);
+    
+    // 替换{{filename}}占位符
+    if (configPath && result.includes('{{filename}}')) {
+      const filename = path.basename(configPath, '.json').replace('-config', '');
+      result = result.replace(/\{\{filename\}\}/g, filename);
+    }
+    
+    return result;
   }
 
   /**

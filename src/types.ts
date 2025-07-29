@@ -52,15 +52,21 @@ export interface CrawlerConfig {
  */
 export interface FieldSelector {
   /** CSS选择器 */
-  selector: string;
+  selector?: string;
   /** 提取方式 */
   extract?: 'text' | 'html' | 'attribute';
   /** 如果extract为attribute，指定属性名 */
   attribute?: string;
   /** 多个结果时的处理方式 */
   multiple?: boolean;
+  /** 默认值，支持占位符如{{filename}}、{{currentUrl}} */
+  default?: string;
   /** 转换函数 */
   transform?: (value: string) => any;
+  /** 字段类型，支持嵌套对象 */
+  type?: 'object';
+  /** 当type为object时，定义子字段 */
+  fields?: Record<string, FieldSelector>;
 }
 
 /**

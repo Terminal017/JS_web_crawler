@@ -28,7 +28,7 @@ async function runCrawler(configPath: string) {
   const config = loadConfig(configPath);
   
   // 创建爬虫实例
-  const crawler = new Crawler(config);
+  const crawler = new Crawler(config, configPath);
   
   try {
     // 初始化爬虫
@@ -85,10 +85,13 @@ async function main() {
   let configPath = './config.json';
 
   // 解析命令行参数
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--config' && i + 1 < args.length) {
-      configPath = args[i + 1];
-      i++;
+  if (args.length > 0) {
+    // 如果有参数，第一个参数作为配置文件路径
+    if (args[0] === '--config' && args.length > 1) {
+      configPath = args[1];
+    } else if (!args[0].startsWith('--')) {
+      // 如果第一个参数不是选项，直接作为配置文件路径
+      configPath = args[0];
     }
   }
 

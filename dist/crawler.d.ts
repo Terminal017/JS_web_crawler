@@ -6,13 +6,15 @@ export declare class Crawler {
     private browser;
     private context;
     private config;
+    private configPath?;
     private results;
     private status;
     /**
      * 构造函数
      * @param config 爬虫配置
+     * @param configPath 配置文件路径
      */
-    constructor(config: CrawlerConfig);
+    constructor(config: CrawlerConfig, configPath?: string);
     /**
      * 初始化浏览器
      */
@@ -37,6 +39,13 @@ export declare class Crawler {
      * @param fieldSelector 字段选择器
      */
     private extractField;
+    /**
+     * 处理默认值中的占位符
+     * @param defaultValue 默认值字符串
+     * @param currentUrl 当前页面URL
+     * @param configPath 配置文件路径
+     */
+    private processDefaultValue;
     /**
      * 保存结果
      */

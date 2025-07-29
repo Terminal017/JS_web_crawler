@@ -1,9 +1,9 @@
 {
-  "startUrls": ["https://quotes.toscrape.com/"],
+  "startUrls": ["https://www.example.com/"],
   "selectors": {
     "listPage": {
-      "items": "div.quote > span:not([class])",
-      "nextPage": "li.next > a",
+      "items": "selector(不加a)",
+      "nextPage": "selector(下一页)",
       "maxPages": 2,
       "itemLink": {
         "selector": "a",
@@ -17,7 +17,7 @@
           "default": "{{filename}}"
         },
         "title": {
-          "selector": "div.author-details > h3",
+          "selector": "标题选择器",
           "extract": "text"
         },
         "href": {
@@ -27,12 +27,12 @@
           "type": "object",
           "fields": {
             "author": {
-              "selector": "div.author-details > p:nth-child(2)",
+              "selector": "作者选择器",
               "extract": "text",
               "default": "unknown"
             },
             "article": {
-              "selector": "div.author-description",
+              "selector": "文章选择器",
               "extract": "text"
             }
           }
@@ -42,7 +42,7 @@
   },
   "output": {
     "type": "json",
-    "path": "./data/news-articles.json"
+    "path": "./data/example.json（请更改）"
   },
   "behavior": {
     "requestDelay": 2000,

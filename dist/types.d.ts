@@ -51,15 +51,21 @@ export interface CrawlerConfig {
  */
 export interface FieldSelector {
     /** CSS选择器 */
-    selector: string;
+    selector?: string;
     /** 提取方式 */
     extract?: 'text' | 'html' | 'attribute';
     /** 如果extract为attribute，指定属性名 */
     attribute?: string;
     /** 多个结果时的处理方式 */
     multiple?: boolean;
+    /** 默认值，支持占位符如{{filename}}、{{currentUrl}} */
+    default?: string;
     /** 转换函数 */
     transform?: (value: string) => any;
+    /** 字段类型，支持嵌套对象 */
+    type?: 'object';
+    /** 当type为object时，定义子字段 */
+    fields?: Record<string, FieldSelector>;
 }
 /**
  * 爬取结果项接口
@@ -90,4 +96,23 @@ export interface CrawlerStatus {
     state: 'idle' | 'running' | 'paused' | 'completed' | 'error';
     /** 错误信息 */
     error?: string;
+}
+/**
+ * 统一的采集输出结构接口
+ */
+export interface CrawlOutputItem {
+    /** 唯一标识，等于详情页链接的文件名 */
+    id: string;
+    /** 标题 */
+    title: string;
+    /** 详情页链接 */
+    href: string;
+    /** 主要内容，嵌套结构 */
+    content: {
+        author: string;
+        article: string;
+        pdf?: string | null;
+    };
+    /** PDF下载链接（如有） */
+    PDF: string | null;
 }
