@@ -2,50 +2,9 @@
 
 由 Claude 和 Trae 协助开发的基于 Playwright 的 TypeScript 爬虫项目
 
-## 项目简介
-
-这是一个功能强大、配置灵活的网页爬虫工具，基于 Playwright 和 TypeScript 开发。支持通过 JSON 配置文件定义爬取规则，可以轻松抓取各种网站的数据。
-
-## 功能特性
-
-- 🚀 **基于 Playwright**：支持现代 JavaScript 网站，处理动态内容
-- 📝 **TypeScript 开发**：类型安全，代码可维护性强
-- ⚙️ **配置驱动**：通过 JSON 配置文件定义爬取规则，无需修改代码
-- 🎯 **多页面支持**：支持列表页和详情页的数据抓取
-- 🔧 **灵活选择器**：支持 CSS 选择器和多种数据提取方式
-- 🌐 **无头模式**：支持后台运行，提高性能
-- 📊 **结构化输出**：将抓取结果保存为 JSON 格式
-
-## 安装依赖
-
-```bash
-npm install
-```
-
-## 项目结构
-
-```
-JS_web_crawler/
-├── src/                    # 源代码目录
-│   ├── crawler.ts         # 爬虫核心逻辑
-│   ├── main.ts           # 程序入口
-│   └── types.ts          # 类型定义
-├── A1/                    # 配置文件目录 A1
-│   └── C1-config.json    # 示例配置文件
-├── A2/                    # 配置文件目录 A2
-│   └── B1-config.json    # 示例配置文件
-├── data/                  # 数据输出目录
-├── dist/                  # 编译后的 JavaScript 文件
-└── README.md             # 项目说明文档
-```
-
-## 配置文件说明
-
-配置文件采用 JSON 格式，主要包含以下字段：
-
 ### 基本配置
 
-```json
+```js
 {
   "startUrls": ["https://example.com"], // 起始 URL 列表
   "selectors": {

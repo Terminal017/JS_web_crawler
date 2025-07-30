@@ -636,7 +636,7 @@ class Crawler {
                         }
                     }
                     // 检查是否存在重复项（基于URL）
-                    const existingIndex = existingData.findIndex(existingItem => existingItem.url === item.url);
+                    const existingIndex = existingData.findIndex((existingItem) => existingItem.url === item.url);
                     if (existingIndex !== -1) {
                         // 覆盖现有项目
                         existingData[existingIndex] = item;
@@ -650,18 +650,15 @@ class Crawler {
                     break;
                 case 'csv':
                     // CSV去重写入
-                    const headers = [
-                        'url',
-                        'timestamp',
-                        ...Object.keys(item.data),
-                    ];
+                    const headers = ['url', 'timestamp', ...Object.keys(item.data)];
                     let existingCsvData = [];
                     // 读取现有CSV文件并解析为对象数组
                     if (fs.existsSync(outputPath)) {
                         try {
                             const fileContent = fs.readFileSync(outputPath, 'utf8');
                             const lines = fileContent.trim().split('\n');
-                            if (lines.length > 1) { // 有数据行
+                            if (lines.length > 1) {
+                                // 有数据行
                                 const headerLine = lines[0];
                                 const dataLines = lines.slice(1);
                                 for (const line of dataLines) {
@@ -671,9 +668,12 @@ class Crawler {
                                         const timestamp = parseInt(values[1].replace(/^"|"$/g, ''));
                                         // 重构数据对象
                                         const data = {};
-                                        for (let i = 2; i < values.length && i - 2 < Object.keys(item.data).length; i++) {
+                                        for (let i = 2; i < values.length &&
+                                            i - 2 < Object.keys(item.data).length; i++) {
                                             const key = Object.keys(item.data)[i - 2];
-                                            let value = values[i].replace(/^"|"$/g, '').replace(/""/g, '"');
+                                            let value = values[i]
+                                                .replace(/^"|"$/g, '')
+                                                .replace(/""/g, '"');
                                             // 尝试解析JSON对象
                                             try {
                                                 if (value.startsWith('{') || value.startsWith('[')) {
@@ -695,7 +695,7 @@ class Crawler {
                         }
                     }
                     // 检查是否存在重复项（基于URL）
-                    const existingCsvIndex = existingCsvData.findIndex(existingItem => existingItem.url === item.url);
+                    const existingCsvIndex = existingCsvData.findIndex((existingItem) => existingItem.url === item.url);
                     if (existingCsvIndex !== -1) {
                         // 覆盖现有项目
                         existingCsvData[existingCsvIndex] = item;
@@ -715,9 +715,10 @@ class Crawler {
                             }
                             row.push(value !== null && value !== undefined ? String(value) : '');
                         }
-                        csvContent += row
-                            .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-                            .join(',') + '\n';
+                        csvContent +=
+                            row
+                                .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+                                .join(',') + '\n';
                     }
                     // 写入文件
                     fs.writeFileSync(outputPath, csvContent, 'utf8');
@@ -726,7 +727,6 @@ class Crawler {
                     throw new Error(`不支持的输出类型: ${type}`);
             }
             this.status.itemsSaved++;
-            console.log(`已保存第 ${this.status.itemsSaved} 条数据到 ${outputPath}`);
         }
         catch (error) {
             console.error('增量保存失败:', error);

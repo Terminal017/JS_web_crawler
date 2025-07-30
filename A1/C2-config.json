@@ -1,13 +1,13 @@
 {
-  "startUrls": ["https://www.congress.gov.ph/media/press-releases/"],
+  "startUrls": ["https://www.congress.gov.ph/media/"],
   "selectors": {
     "listPage": {
-      "items": "a[href*='/media/press-releases/view/']",
+      "items": "div.grid.gap-1.px-2 > a",
       "maxPages": 2,
       "dynamicPagination": {
         "nextButton": "ul.pagination > li.next > a",
-        "waitForSelector": "a[href*='/media/press-releases/view/']",
-        "waitTime": 2000,
+        "waitForSelector": "div.grid.gap-1.px-2 > a",
+        "waitTime": 3000,
         "hasNextPage": "ul.pagination > li.next > a:not(.disabled)"
       },
       "itemLink": {
@@ -22,7 +22,7 @@
           "default": "{{filename}}"
         },
         "title": {
-          "selector": "#main-view > div.container.items-start.aos-init.aos-animate > section > div > div > div.mb-2 > div",
+          "selector": "div.font-semibold.text-blue-600",
           "extract": "text"
         },
         "href": {
@@ -32,12 +32,12 @@
           "type": "object",
           "fields": {
             "datetime": {
-              "selector": "div.mb-2 > span",
+              "selector": "div:not([class]) > div.text-gray-500",
               "extract": "text",
               "default": "unknown"
             },
             "article": {
-              "selector": "#main-view section div div div:last-child",
+              "selector": "div.whitespace-pre-wrap.text-justify",
               "extract": "text"
             }
           }
@@ -53,7 +53,7 @@
   },
   "output": {
     "type": "json",
-    "path": "./data/C1.json"
+    "path": "./data/C2.json"
   },
   "behavior": {
     "requestDelay": 800,

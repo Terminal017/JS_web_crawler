@@ -168,8 +168,8 @@ export class Crawler {
       this.status.urlsCrawled++
 
       // 等待页面加载完成 - 根据快速模式调整等待时间
-      const waitTime = this.config.behavior?.fastMode ? 500 : 2000;
-      await page.waitForTimeout(waitTime);
+      const waitTime = this.config.behavior?.fastMode ? 500 : 2000
+      await page.waitForTimeout(waitTime)
 
       // console.log(`正在查找选择器: ${items}`);
 
@@ -223,10 +223,10 @@ export class Crawler {
       for (const detailUrl of detailUrls) {
         // 添加请求延迟 - 快速模式下减少延迟
         if (this.config.behavior?.requestDelay) {
-          const delay = this.config.behavior.fastMode 
+          const delay = this.config.behavior.fastMode
             ? Math.min(this.config.behavior.requestDelay / 4, 200)
-            : this.config.behavior.requestDelay;
-          await new Promise((resolve) => setTimeout(resolve, delay));
+            : this.config.behavior.requestDelay
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
 
         await this.crawlDetailPage(detailUrl)
@@ -255,16 +255,16 @@ export class Crawler {
         if (nextPageUrl) {
           // 添加请求延迟 - 快速模式下减少延迟
           if (this.config.behavior?.requestDelay) {
-            const delay = this.config.behavior.fastMode 
+            const delay = this.config.behavior.fastMode
               ? Math.min(this.config.behavior.requestDelay / 4, 200)
-              : this.config.behavior.requestDelay;
-            await new Promise((resolve) => setTimeout(resolve, delay));
+              : this.config.behavior.requestDelay
+            await new Promise((resolve) => setTimeout(resolve, delay))
           }
 
           await this.crawlListPage(nextPageUrl, currentPage + 1)
         }
       }
-      
+
       // 处理动态分页（点击式分页）
       const { dynamicPagination } = this.config.selectors.listPage
       if (dynamicPagination && !nextPage) {
@@ -281,11 +281,16 @@ export class Crawler {
    * @param baseUrl 基础URL
    * @param currentPage 当前页码
    */
-  private async handleDynamicPagination(page: Page, baseUrl: string, currentPage: number): Promise<void> {
+  private async handleDynamicPagination(
+    page: Page,
+    baseUrl: string,
+    currentPage: number,
+  ): Promise<void> {
     const { dynamicPagination, maxPages } = this.config.selectors.listPage!
     if (!dynamicPagination) return
 
-    const { nextButton, waitForSelector, waitTime, hasNextPage } = dynamicPagination
+    const { nextButton, waitForSelector, waitTime, hasNextPage } =
+      dynamicPagination
 
     // 检查是否达到最大页数限制
     if (maxPages && currentPage >= maxPages) {
@@ -321,13 +326,14 @@ export class Crawler {
         await page.waitForSelector(waitForSelector, { timeout: 10000 })
       } else {
         // 使用配置的等待时间或默认等待时间
-        const defaultWaitTime = waitTime || (this.config.behavior?.fastMode ? 1000 : 3000)
+        const defaultWaitTime =
+          waitTime || (this.config.behavior?.fastMode ? 1000 : 3000)
         await page.waitForTimeout(defaultWaitTime)
       }
 
       // 添加请求延迟
       if (this.config.behavior?.requestDelay) {
-        const delay = this.config.behavior.fastMode 
+        const delay = this.config.behavior.fastMode
           ? Math.min(this.config.behavior.requestDelay / 4, 200)
           : this.config.behavior.requestDelay
         await new Promise((resolve) => setTimeout(resolve, delay))
@@ -335,7 +341,6 @@ export class Crawler {
 
       // 递归处理新加载的内容
       await this.crawlCurrentPageContent(page, baseUrl, currentPage + 1)
-
     } catch (error) {
       console.error(`动态分页处理失败:`, error)
     }
@@ -347,8 +352,13 @@ export class Crawler {
    * @param baseUrl 基础URL
    * @param currentPage 当前页码
    */
-  private async crawlCurrentPageContent(page: Page, baseUrl: string, currentPage: number): Promise<void> {
-    const { items, dynamicPagination, maxPages } = this.config.selectors.listPage!
+  private async crawlCurrentPageContent(
+    page: Page,
+    baseUrl: string,
+    currentPage: number,
+  ): Promise<void> {
+    const { items, dynamicPagination, maxPages } =
+      this.config.selectors.listPage!
 
     // 检查是否达到最大页数限制
     if (maxPages && currentPage > maxPages) {
@@ -389,7 +399,7 @@ export class Crawler {
     // 爬取每个详情页
     for (const detailUrl of detailUrls) {
       if (this.config.behavior?.requestDelay) {
-        const delay = this.config.behavior.fastMode 
+        const delay = this.config.behavior.fastMode
           ? Math.min(this.config.behavior.requestDelay / 4, 200)
           : this.config.behavior.requestDelay
         await new Promise((resolve) => setTimeout(resolve, delay))
@@ -449,7 +459,7 @@ export class Crawler {
 
       // 添加到结果集
       this.results.push(item)
-      
+
       // 立即保存到文件（增量保存）
       await this.saveItemIncremental(item)
       // console.log(`成功提取数据: ${url}`);
@@ -717,10 +727,12 @@ export class Crawler {
               console.warn('读取现有文件失败，将创建新文件:', error)
             }
           }
-          
+
           // 检查是否存在重复项（基于URL）
-          const existingIndex = existingData.findIndex(existingItem => existingItem.url === item.url)
-          
+          const existingIndex = existingData.findIndex(
+            (existingItem) => existingItem.url === item.url,
+          )
+
           if (existingIndex !== -1) {
             // 覆盖现有项目
             existingData[existingIndex] = item
@@ -728,7 +740,7 @@ export class Crawler {
             // 添加新项目
             existingData.push(item)
           }
-          
+
           // 写入更新后的数据
           fs.writeFileSync(
             outputPath,
@@ -738,36 +750,40 @@ export class Crawler {
           break
         case 'csv':
           // CSV去重写入
-          const headers = [
-            'url',
-            'timestamp',
-            ...Object.keys(item.data),
-          ]
-          
+          const headers = ['url', 'timestamp', ...Object.keys(item.data)]
+
           let existingCsvData: CrawlItem[] = []
-          
+
           // 读取现有CSV文件并解析为对象数组
           if (fs.existsSync(outputPath)) {
             try {
               const fileContent = fs.readFileSync(outputPath, 'utf8')
               const lines = fileContent.trim().split('\n')
-              
-              if (lines.length > 1) { // 有数据行
+
+              if (lines.length > 1) {
+                // 有数据行
                 const headerLine = lines[0]
                 const dataLines = lines.slice(1)
-                
+
                 for (const line of dataLines) {
                   const values = this.parseCsvLine(line)
                   if (values.length >= 2) {
                     const url = values[0].replace(/^"|"$/g, '') // 移除引号
                     const timestamp = parseInt(values[1].replace(/^"|"$/g, ''))
-                    
+
                     // 重构数据对象
                     const data: Record<string, any> = {}
-                    for (let i = 2; i < values.length && i - 2 < Object.keys(item.data).length; i++) {
+                    for (
+                      let i = 2;
+                      i < values.length &&
+                      i - 2 < Object.keys(item.data).length;
+                      i++
+                    ) {
                       const key = Object.keys(item.data)[i - 2]
-                      let value = values[i].replace(/^"|"$/g, '').replace(/""/g, '"')
-                      
+                      let value = values[i]
+                        .replace(/^"|"$/g, '')
+                        .replace(/""/g, '"')
+
                       // 尝试解析JSON对象
                       try {
                         if (value.startsWith('{') || value.startsWith('[')) {
@@ -776,10 +792,10 @@ export class Crawler {
                       } catch {
                         // 保持原始字符串值
                       }
-                      
+
                       data[key] = value
                     }
-                    
+
                     existingCsvData.push({ url, timestamp, data })
                   }
                 }
@@ -788,10 +804,12 @@ export class Crawler {
               console.warn('读取现有CSV文件失败，将创建新文件:', error)
             }
           }
-          
+
           // 检查是否存在重复项（基于URL）
-          const existingCsvIndex = existingCsvData.findIndex(existingItem => existingItem.url === item.url)
-          
+          const existingCsvIndex = existingCsvData.findIndex(
+            (existingItem) => existingItem.url === item.url,
+          )
+
           if (existingCsvIndex !== -1) {
             // 覆盖现有项目
             existingCsvData[existingCsvIndex] = item
@@ -799,10 +817,10 @@ export class Crawler {
             // 添加新项目
             existingCsvData.push(item)
           }
-          
+
           // 重写整个CSV文件
           let csvContent = headers.join(',') + '\n'
-          
+
           for (const csvItem of existingCsvData) {
             const row = [csvItem.url, csvItem.timestamp.toString()]
             for (const key of Object.keys(item.data)) {
@@ -814,21 +832,21 @@ export class Crawler {
                 value !== null && value !== undefined ? String(value) : '',
               )
             }
-            
-            csvContent += row
-              .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-              .join(',') + '\n'
+
+            csvContent +=
+              row
+                .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+                .join(',') + '\n'
           }
-          
+
           // 写入文件
           fs.writeFileSync(outputPath, csvContent, 'utf8')
           break
         default:
           throw new Error(`不支持的输出类型: ${type}`)
       }
-      
+
       this.status.itemsSaved++
-      console.log(`已保存第 ${this.status.itemsSaved} 条数据到 ${outputPath}`)
     } catch (error) {
       console.error('增量保存失败:', error)
       throw error
