@@ -29,6 +29,20 @@ export declare class Crawler {
      */
     private crawlListPage;
     /**
+     * 处理动态分页（点击式分页）
+     * @param page 当前页面对象
+     * @param baseUrl 基础URL
+     * @param currentPage 当前页码
+     */
+    private handleDynamicPagination;
+    /**
+     * 爬取当前页面的内容（用于动态分页）
+     * @param page 页面对象
+     * @param baseUrl 基础URL
+     * @param currentPage 当前页码
+     */
+    private crawlCurrentPageContent;
+    /**
      * 爬取详情页
      * @param url 详情页URL
      */
@@ -39,6 +53,12 @@ export declare class Crawler {
      * @param fieldSelector 字段选择器
      */
     private extractField;
+    /**
+     * 解析CSV行，处理引号内的逗号
+     * @param line CSV行字符串
+     * @returns 解析后的值数组
+     */
+    private parseCsvLine;
     /**
      * 将相对URL转换为绝对URL
      * @param url 要转换的URL
@@ -55,6 +75,11 @@ export declare class Crawler {
     /**
      * 保存结果
      */
+    /**
+     * 增量保存单个结果项
+     * @param item 要保存的结果项
+     */
+    private saveItemIncremental;
     private saveResults;
     /**
      * 获取爬虫状态

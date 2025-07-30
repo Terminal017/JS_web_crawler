@@ -1,15 +1,10 @@
 {
-  "startUrls": ["https://www.congress.gov.ph/media/press-releases/"],
+  "startUrls": ["https://www.example.com/"],
   "selectors": {
     "listPage": {
-      "items": "a[href*='/media/press-releases/view/']",
-      "maxPages": 3,
-      "dynamicPagination": {
-        "nextButton": "ul.pagination > li.next > a",
-        "waitForSelector": "a[href*='/media/press-releases/view/']",
-        "waitTime": 2000,
-        "hasNextPage": "ul.pagination > li.next > a:not(.disabled)"
-      },
+      "items": "selector(不加a)",
+      "nextPage": "selector(下一页)",
+      "maxPages": 1,
       "itemLink": {
         "selector": ".",
         "extract": "attribute",
@@ -22,7 +17,7 @@
           "default": "{{filename}}"
         },
         "title": {
-          "selector": "#main-view > div.container.items-start.aos-init.aos-animate > section > div > div > div.mb-2 > div",
+          "selector": "标题选择器",
           "extract": "text"
         },
         "href": {
@@ -32,12 +27,12 @@
           "type": "object",
           "fields": {
             "datetime": {
-              "selector": "div.mb-2 > span",
+              "selector": "时间选择器",
               "extract": "text",
               "default": "unknown"
             },
             "article": {
-              "selector": "#main-view section div div div:last-child",
+              "selector": "文章选择器",
               "extract": "text"
             }
           }
@@ -61,7 +56,7 @@
     "javascript": true,
     "browserType": "chromium",
     "headless": true,
-    "fastMode": false,
+    "fastMode": "false（选择是否启用快速模式）",
     "headers": {
       "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",

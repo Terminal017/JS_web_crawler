@@ -47,36 +47,39 @@ JS_web_crawler/
 
 ```json
 {
-  "startUrls": ["https://example.com"],  // 起始 URL 列表
+  "startUrls": ["https://example.com"], // 起始 URL 列表
   "selectors": {
-    "listPage": {                         // 列表页配置
-      "items": "a.item-link",            // 列表项选择器
-      "maxPages": 1,                     // 最大抓取页数
+    "listPage": {
+      // 列表页配置
+      "items": "a.item-link", // 列表项选择器
+      "maxPages": 1, // 最大抓取页数
       "itemLink": {
-        "selector": ".",                 // 链接选择器
-        "extract": "attribute",          // 提取方式
-        "attribute": "href"              // 提取属性
+        "selector": ".", // 链接选择器
+        "extract": "attribute", // 提取方式
+        "attribute": "href" // 提取属性
       }
     },
-    "detailPage": {                       // 详情页配置
+    "detailPage": {
+      // 详情页配置
       "fields": {
         "title": {
-          "selector": "h1",              // 标题选择器
-          "extract": "text"              // 提取文本
+          "selector": "h1", // 标题选择器
+          "extract": "text" // 提取文本
         },
         "content": {
-          "selector": ".content",        // 内容选择器
+          "selector": ".content", // 内容选择器
           "extract": "text"
         }
       }
     }
   },
-  "behavior": {                           // 行为配置
-    "headless": true,                    // 无头模式
-    "requestDelay": 1500,               // 请求延迟（毫秒）
-    "timeout": 60000,                   // 超时时间
-    "javascript": true,                 // 启用 JavaScript
-    "browserType": "chromium"           // 浏览器类型
+  "behavior": {
+    // 行为配置
+    "headless": true, // 无头模式
+    "requestDelay": 1500, // 请求延迟（毫秒）
+    "timeout": 60000, // 超时时间
+    "javascript": true, // 启用 JavaScript
+    "browserType": "chromium" // 浏览器类型
   }
 }
 ```
@@ -108,6 +111,7 @@ npm run dev A1/C1-config.json
 ## 输出结果
 
 爬取的数据将保存在 `data/` 目录下，文件名与配置文件名对应。例如：
+
 - `A1/C1-config.json` → `data/C1.json`
 - `A2/B1-config.json` → `data/B1.json`
 
@@ -125,11 +129,13 @@ npm run dev A1/C1-config.json
 ### Quick Start
 
 1. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 2. **Build the project**:
+
    ```bash
    npm run build
    ```
@@ -155,6 +161,7 @@ Scraped data is saved as JSON files in the `data/` directory. The filename corre
 ### Development
 
 For development and debugging, you can run:
+
 ```bash
 npm run dev path/to/config.json
 ```

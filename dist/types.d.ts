@@ -14,6 +14,17 @@ export interface CrawlerConfig {
             nextPage?: string;
             /** 最大爬取页数 */
             maxPages?: number;
+            /** 动态分页配置 - 用于处理点击式分页 */
+            dynamicPagination?: {
+                /** 下一页按钮选择器 */
+                nextButton: string;
+                /** 等待新内容加载的选择器 */
+                waitForSelector?: string;
+                /** 等待时间(毫秒) */
+                waitTime?: number;
+                /** 检测是否还有下一页的方法 */
+                hasNextPage?: string;
+            };
         };
         /** 详情页选择器 */
         detailPage?: {
@@ -46,6 +57,8 @@ export interface CrawlerConfig {
         userAgent?: string;
         /** 是否无头模式 */
         headless?: boolean;
+        /** 快速模式 - 适用于无人机验证的网站，减少等待时间 */
+        fastMode?: boolean;
     };
 }
 /**

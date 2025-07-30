@@ -3,50 +3,63 @@
  */
 export interface CrawlerConfig {
   /** 起始URL */
-  startUrls: string[];
+  startUrls: string[]
   /** 选择器配置 */
   selectors: {
     /** 列表页选择器 */
     listPage?: {
       /** 列表项选择器 */
-      items: string;
+      items: string
       /** 下一页链接选择器 */
-      nextPage?: string;
+      nextPage?: string
       /** 最大爬取页数 */
-      maxPages?: number;
-    };
+      maxPages?: number
+      /** 动态分页配置 - 用于处理点击式分页 */
+      dynamicPagination?: {
+        /** 下一页按钮选择器 */
+        nextButton: string
+        /** 等待新内容加载的选择器 */
+        waitForSelector?: string
+        /** 等待时间(毫秒) */
+        waitTime?: number
+        /** 检测是否还有下一页的方法 */
+        hasNextPage?: string
+      }
+    }
     /** 详情页选择器 */
     detailPage?: {
       /** 字段选择器映射 */
-      fields: Record<string, FieldSelector>;
-    };
-  };
+      fields: Record<string, FieldSelector>
+    }
+  }
   /** 输出配置 */
   output: {
     /** 输出类型: json, csv等 */
-    type: 'json' | 'csv';
+    type: 'json' | 'csv'
     /** 输出路径 */
-    path: string;
-  };
+    path: string
+  }
   /** 爬虫行为配置 */
   behavior?: {
     /** 请求间隔(毫秒) */
-    requestDelay?: number;
+    requestDelay?: number
     /** 超时设置(毫秒) */
-    timeout?: number;
+    timeout?: number
     /** 是否启用JavaScript */
-    javascript?: boolean;
+    javascript?: boolean
     /** 自定义headers */
-    headers?: Record<string, string>;
+    headers?: Record<string, string>
     /** 代理设置 */
-    proxy?: string;
+    proxy?: string
     /** 浏览器类型 */
-    browserType?: 'chromium' | 'firefox' | 'webkit';
+    browserType?: 'chromium' | 'firefox' | 'webkit'
     /** 用户代理 */
-    userAgent?: string;
+    userAgent?: string
     /** 是否无头模式 */
-    headless?: boolean;
-  };
+    headless?: boolean
+    /** 快速模式 - 适用于无人机验证的网站，减少等待时间 */
+    fastMode?: boolean
+  }
 }
 
 /**
@@ -54,21 +67,21 @@ export interface CrawlerConfig {
  */
 export interface FieldSelector {
   /** CSS选择器 */
-  selector?: string;
+  selector?: string
   /** 提取方式 */
-  extract?: 'text' | 'html' | 'attribute';
+  extract?: 'text' | 'html' | 'attribute'
   /** 如果extract为attribute，指定属性名 */
-  attribute?: string;
+  attribute?: string
   /** 多个结果时的处理方式 */
-  multiple?: boolean;
+  multiple?: boolean
   /** 默认值，支持占位符如{{filename}}、{{currentUrl}} */
-  default?: string;
+  default?: string
   /** 转换函数 */
-  transform?: (value: string) => any;
+  transform?: (value: string) => any
   /** 字段类型，支持嵌套对象 */
-  type?: 'object';
+  type?: 'object'
   /** 当type为object时，定义子字段 */
-  fields?: Record<string, FieldSelector>;
+  fields?: Record<string, FieldSelector>
 }
 
 /**
@@ -76,13 +89,13 @@ export interface FieldSelector {
  */
 export interface CrawlItem {
   /** 唯一标识 */
-  id?: string;
+  id?: string
   /** URL */
-  url: string;
+  url: string
   /** 爬取时间 */
-  timestamp: number;
+  timestamp: number
   /** 数据字段 */
-  data: Record<string, any>;
+  data: Record<string, any>
 }
 
 /**
@@ -90,17 +103,17 @@ export interface CrawlItem {
  */
 export interface CrawlerStatus {
   /** 已爬取的URL数量 */
-  urlsCrawled: number;
+  urlsCrawled: number
   /** 已保存的项目数量 */
-  itemsSaved: number;
+  itemsSaved: number
   /** 开始时间 */
-  startTime: number;
+  startTime: number
   /** 运行时间(毫秒) */
-  runningTime: number;
+  runningTime: number
   /** 当前状态 */
-  state: 'idle' | 'running' | 'paused' | 'completed' | 'error';
+  state: 'idle' | 'running' | 'paused' | 'completed' | 'error'
   /** 错误信息 */
-  error?: string;
+  error?: string
 }
 
 /**
@@ -108,17 +121,17 @@ export interface CrawlerStatus {
  */
 export interface CrawlOutputItem {
   /** 唯一标识，等于详情页链接的文件名 */
-  id: string;
+  id: string
   /** 标题 */
-  title: string;
+  title: string
   /** 详情页链接 */
-  href: string;
+  href: string
   /** 主要内容，嵌套结构 */
   content: {
-    author: string;
-    article: string;
-    pdf?: string | null;
-  };
+    author: string
+    article: string
+    pdf?: string | null
+  }
   /** PDF下载链接（如有） */
-  PDF: string | null;
+  PDF: string | null
 }
