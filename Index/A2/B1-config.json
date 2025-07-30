@@ -48,7 +48,7 @@
   },
   "output": {
     "type": "json",
-    "path": "./data/B1.json"
+    "path": "./data/A2/B1-config.json"
   },
   "behavior": {
     "requestDelay": 2000,

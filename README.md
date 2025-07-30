@@ -1,6 +1,6 @@
-# JS Web Crawler
+# JS Web Crawler - 批量运行功能
 
-由 Claude 和 Trae 协助开发的基于 Playwright 的 TypeScript 爬虫项目
+由 Claude 和 Trae 协助开发的基于 Playwright 的 TypeScript 爬虫项目，支持批量处理多个爬虫配置文件
 
 ### 基本配置
 
@@ -81,48 +81,40 @@ npm run dev A1/C1-config.json
 - 建议在开发时先使用 `headless: false` 进行调试
 - 生产环境建议使用 `headless: true` 提高性能
 
----
+## 批量运行功能
 
-## English Usage Guide
+### 项目结构
 
-### Quick Start
-
-1. **Install dependencies**:
-
-   ```bash
-   npm install
-   ```
-
-2. **Build the project**:
-
-   ```bash
-   npm run build
-   ```
-
-3. **Run the crawler**:
-   ```bash
-   node dist/main.js path/to/config.json
-   ```
-
-### Configuration Structure
-
-The crawler uses JSON configuration files to define scraping rules:
-
-- `startUrls`: Array of starting URLs
-- `selectors.listPage`: Configuration for list pages (item links extraction)
-- `selectors.detailPage`: Configuration for detail pages (data extraction)
-- `behavior`: Browser behavior settings (headless mode, delays, timeouts)
-
-### Output
-
-Scraped data is saved as JSON files in the `data/` directory. The filename corresponds to the configuration file name.
-
-### Development
-
-For development and debugging, you can run:
-
-```bash
-npm run dev path/to/config.json
+```
+JS_web_crawler/
+├── Index/                    # 主入口文件夹
+│   ├── A1/                  # 脚本文件夹1
+│   │   ├── Media-config.json
+│   │   └── Press-releases-config.json
+│   └── A2/                  # 脚本文件夹2
+│       └── B1-config.json
+├── src/                     # 源代码
+├── dist/                    # 编译后的代码
+├── data/                    # 输出数据目录
+├── run-all.js              # 批量运行脚本
+└── package.json
 ```
 
-This project is built with TypeScript and Playwright, providing a robust and flexible web scraping solution.
+### 批量运行所有配置
+
+```bash
+npm run run-all
+```
+
+### 部署到服务器
+
+```bash
+npm run deploy
+```
+
+### 添加新的爬虫任务
+
+1. 在 `Index/` 文件夹下创建新的子文件夹（如 `A3/`）
+2. 在子文件夹中放置配置文件（如 `config.json`）
+3. 确保配置文件中的输出路径正确（如 `./data/A3/config.json`）
+4. 运行 `npm run run-all` 即可自动包含新任务

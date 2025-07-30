@@ -9,7 +9,11 @@
     "dev": "npx ts-node src/main.ts",
     "crawl": "npx ts-node src/main.ts --config",
     "crawl-all": "npx ts-node src/main.ts --config examples",
-    "example": "npx ts-node src/main.ts --config examples/books-toscrape-config.json"
+    "example": "npx ts-node src/main.ts --config examples/books-toscrape-config.json",
+    "batch": "npx ts-node src/batch-main.ts",
+    "batch-build": "npm run build && node dist/batch-main.js",
+    "run-all": "npm run build && node run-all.js",
+    "deploy": "npm run run-all"
   },
   "repository": {
     "type": "git",

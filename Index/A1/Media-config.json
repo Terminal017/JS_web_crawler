@@ -3,7 +3,7 @@
   "selectors": {
     "listPage": {
       "items": "div.grid.gap-1.px-2 > a",
-      "maxPages": 2,
+      "maxPages": 592,
       "dynamicPagination": {
         "nextButton": "ul.pagination > li.next > a",
         "waitForSelector": "div.grid.gap-1.px-2 > a",
@@ -53,7 +53,7 @@
   },
   "output": {
     "type": "json",
-    "path": "./data/C2.json"
+    "path": "./data/A1/Media-config.json"
   },
   "behavior": {
     "requestDelay": 800,

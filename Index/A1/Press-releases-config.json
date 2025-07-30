@@ -3,7 +3,7 @@
   "selectors": {
     "listPage": {
       "items": "a[href*='/media/press-releases/view/']",
-      "maxPages": 2,
+      "maxPages": 941,
       "dynamicPagination": {
         "nextButton": "ul.pagination > li.next > a",
         "waitForSelector": "a[href*='/media/press-releases/view/']",
@@ -53,7 +53,7 @@
   },
   "output": {
     "type": "json",
-    "path": "./data/C1.json"
+    "path": "./data/A1/Press-releases.json"
   },
   "behavior": {
     "requestDelay": 800,
