@@ -229,7 +229,8 @@ export class Crawler {
           await new Promise((resolve) => setTimeout(resolve, delay))
         }
 
-        await this.crawlDetailPage(detailUrl)
+        // 添加重试机制和错误跳过
+        await this.crawlDetailPageWithRetry(detailUrl)
       }
 
       // 处理分页
@@ -289,7 +290,7 @@ export class Crawler {
     const { dynamicPagination, maxPages } = this.config.selectors.listPage!
     if (!dynamicPagination) return
 
-    const { nextButton, waitForSelector, waitTime, hasNextPage } =
+    const { nextButton, waitForSelector, waitTime, hasNextPage, retryAttempts, retryDelay } =
       dynamicPagination
 
     // 检查是否达到最大页数限制
@@ -297,52 +298,71 @@ export class Crawler {
       return
     }
 
-    try {
-      // 检查下一页按钮是否存在且可点击
-      const nextButtonElement = await page.$(nextButton)
-      if (!nextButtonElement) {
-        return
-      }
+    const maxRetries = retryAttempts || 2
+    const retryDelayMs = retryDelay || 3000
 
-      // 如果配置了hasNextPage选择器，检查是否还有下一页
-      if (hasNextPage) {
-        const hasNext = await page.$(hasNextPage).catch(() => null)
-        if (!hasNext) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // 检查下一页按钮是否存在且可点击
+        const nextButtonElement = await page.$(nextButton)
+        if (!nextButtonElement) {
+          console.log(`第${currentPage}页：未找到下一页按钮，分页结束`)
           return
         }
+
+        // 如果配置了hasNextPage选择器，检查是否还有下一页
+        if (hasNextPage) {
+          const hasNext = await page.$(hasNextPage).catch(() => null)
+          if (!hasNext) {
+            console.log(`第${currentPage}页：检测到无下一页，分页结束`)
+            return
+          }
+        }
+
+        // 检查按钮是否可点击
+        const isClickable = await nextButtonElement.isEnabled()
+        if (!isClickable) {
+          console.log(`第${currentPage}页：下一页按钮不可点击，分页结束`)
+          return
+        }
+
+        // 点击下一页按钮
+        await nextButtonElement.click()
+        console.log(`第${currentPage}页：成功点击下一页按钮`)
+
+        // 等待新内容加载
+        if (waitForSelector) {
+          await page.waitForSelector(waitForSelector, { timeout: 15000 })
+        } else {
+          // 使用配置的等待时间或默认等待时间
+          const defaultWaitTime =
+            waitTime || (this.config.behavior?.fastMode ? 1000 : 3000)
+          await page.waitForTimeout(defaultWaitTime)
+        }
+
+        // 添加请求延迟
+        if (this.config.behavior?.requestDelay) {
+          const delay = this.config.behavior.fastMode
+            ? Math.min(this.config.behavior.requestDelay / 4, 200)
+            : this.config.behavior.requestDelay
+          await new Promise((resolve) => setTimeout(resolve, delay))
+        }
+
+        // 递归处理新加载的内容
+        await this.crawlCurrentPageContent(page, baseUrl, currentPage + 1)
+        return // 成功则退出重试循环
+
+      } catch (error) {
+        console.warn(`动态分页处理失败 (尝试 ${attempt}/${maxRetries}):`, error)
+        
+        if (attempt === maxRetries) {
+          console.error(`动态分页最终失败，跳过第${currentPage + 1}页`)
+          return
+        }
+        
+        // 等待后重试
+        await new Promise(resolve => setTimeout(resolve, retryDelayMs))
       }
-
-      // 检查按钮是否可点击
-      const isClickable = await nextButtonElement.isEnabled()
-      if (!isClickable) {
-        return
-      }
-
-      // 点击下一页按钮
-      await nextButtonElement.click()
-
-      // 等待新内容加载
-      if (waitForSelector) {
-        await page.waitForSelector(waitForSelector, { timeout: 10000 })
-      } else {
-        // 使用配置的等待时间或默认等待时间
-        const defaultWaitTime =
-          waitTime || (this.config.behavior?.fastMode ? 1000 : 3000)
-        await page.waitForTimeout(defaultWaitTime)
-      }
-
-      // 添加请求延迟
-      if (this.config.behavior?.requestDelay) {
-        const delay = this.config.behavior.fastMode
-          ? Math.min(this.config.behavior.requestDelay / 4, 200)
-          : this.config.behavior.requestDelay
-        await new Promise((resolve) => setTimeout(resolve, delay))
-      }
-
-      // 递归处理新加载的内容
-      await this.crawlCurrentPageContent(page, baseUrl, currentPage + 1)
-    } catch (error) {
-      console.error(`动态分页处理失败:`, error)
     }
   }
 
@@ -405,7 +425,8 @@ export class Crawler {
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
 
-      await this.crawlDetailPage(detailUrl)
+      // 使用带重试机制的详情页爬取
+      await this.crawlDetailPageWithRetry(detailUrl)
     }
 
     // 继续处理下一页
@@ -418,6 +439,51 @@ export class Crawler {
    * 爬取详情页
    * @param url 详情页URL
    */
+  /**
+   * 带重试机制的详情页爬取
+   * @param url 详情页URL
+   */
+  private async crawlDetailPageWithRetry(url: string): Promise<void> {
+    const maxRetries = this.config.behavior?.retryAttempts || 3
+    const retryDelay = this.config.behavior?.retryDelay || 5000
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await this.crawlDetailPage(url)
+        return // 成功则退出重试循环
+      } catch (error) {
+        console.warn(`详情页爬取失败 (尝试 ${attempt}/${maxRetries}): ${url}`, error)
+        
+        if (attempt === maxRetries) {
+          console.error(`详情页爬取最终失败，跳过: ${url}`)
+          // 记录失败的URL但不中断整个流程
+          this.logFailedUrl(url, error)
+          return
+        }
+        
+        // 等待后重试
+        await new Promise(resolve => setTimeout(resolve, retryDelay))
+      }
+    }
+  }
+
+  /**
+   * 记录失败的URL
+   * @param url 失败的URL
+   * @param error 错误信息
+   */
+  private logFailedUrl(url: string, error: any): void {
+    const failedItem = {
+      url,
+      timestamp: Date.now(),
+      error: error.toString(),
+      status: 'failed'
+    }
+    
+    // 可以选择保存失败记录到单独的文件
+    console.log(`记录失败URL: ${url}`)
+  }
+
   private async crawlDetailPage(url: string): Promise<void> {
     if (!this.context) throw new Error('浏览器上下文未初始化')
     if (!this.config.selectors.detailPage) {
@@ -432,6 +498,11 @@ export class Crawler {
       // 导航到详情页
       await page.goto(url, { waitUntil: 'domcontentloaded' })
       this.status.urlsCrawled++
+
+      // 等待网络空闲（如果配置了）
+      if (this.config.behavior?.waitForNetworkIdle) {
+        await page.waitForLoadState('networkidle')
+      }
 
       // 提取数据
       const data: Record<string, any> = {}
@@ -465,6 +536,7 @@ export class Crawler {
       // console.log(`成功提取数据: ${url}`);
     } catch (error) {
       console.error(`爬取详情页失败 ${url}:`, error)
+      throw error // 重新抛出错误以便重试机制处理
     } finally {
       await page.close()
     }
