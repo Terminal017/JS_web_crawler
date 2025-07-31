@@ -75,25 +75,38 @@ async function runCrawler(configPath) {
     }
 }
 /**
- * 获取目录下所有JSON配置文件
+ * 获取目录下所有JSON配置文件（递归查找子文件夹）
  * @param dirPath 目录路径
  */
 function getConfigFiles(dirPath) {
     try {
         if (!fs.existsSync(dirPath)) {
-            console.error(`目录不存在: ${dirPath}`);
+            console.error(`路径不存在: ${dirPath}`);
             process.exit(1);
         }
         if (!fs.statSync(dirPath).isDirectory()) {
             // 如果是文件而不是目录，直接返回该文件
             return [dirPath];
         }
-        // 读取目录下所有文件
-        const files = fs.readdirSync(dirPath);
-        // 过滤出JSON文件并转为完整路径
-        return files
-            .filter(file => file.endsWith('.json'))
-            .map(file => path.join(dirPath, file));
+        const configFiles = [];
+        // 递归查找所有子文件夹中的JSON配置文件
+        function findConfigsRecursively(currentPath) {
+            const items = fs.readdirSync(currentPath);
+            for (const item of items) {
+                const itemPath = path.join(currentPath, item);
+                const stat = fs.statSync(itemPath);
+                if (stat.isDirectory()) {
+                    // 如果是目录，递归查找
+                    findConfigsRecursively(itemPath);
+                }
+                else if (item.endsWith('.json') || item.endsWith('-config.json')) {
+                    // 如果是JSON配置文件，添加到列表
+                    configFiles.push(itemPath);
+                }
+            }
+        }
+        findConfigsRecursively(dirPath);
+        return configFiles.sort(); // 排序确保执行顺序一致
     }
     catch (error) {
         console.error(`读取配置文件目录失败: ${error}`);
@@ -106,7 +119,7 @@ function getConfigFiles(dirPath) {
 async function main() {
     // 获取命令行参数
     const args = process.argv.slice(2);
-    let configPath = './config.json';
+    let configPath = './Index';
     // 解析命令行参数
     if (args.length > 0) {
         // 如果有参数，第一个参数作为配置文件路径
