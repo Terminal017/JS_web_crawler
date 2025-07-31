@@ -24,10 +24,6 @@ export interface CrawlerConfig {
         waitTime?: number
         /** 检测是否还有下一页的方法 */
         hasNextPage?: string
-        /** 重试次数 */
-        retryAttempts?: number
-        /** 重试延迟(毫秒) */
-        retryDelay?: number
       }
     }
     /** 详情页选择器 */
@@ -49,10 +45,6 @@ export interface CrawlerConfig {
     requestDelay?: number
     /** 超时设置(毫秒) */
     timeout?: number
-    /** 重试次数 */
-    retryAttempts?: number
-    /** 重试延迟(毫秒) */
-    retryDelay?: number
     /** 是否启用JavaScript */
     javascript?: boolean
     /** 自定义headers */
@@ -67,8 +59,10 @@ export interface CrawlerConfig {
     headless?: boolean
     /** 快速模式 - 适用于无人机验证的网站，减少等待时间 */
     fastMode?: boolean
-    /** 等待网络空闲 */
-    waitForNetworkIdle?: boolean
+    /** 重试次数 - 单个页面失败时的重试次数 */
+    retryAttempts?: number
+    /** 遇到错误时是否继续执行 - true时跳过失败页面继续爬取 */
+    continueOnError?: boolean
   }
 }
 

@@ -6,10 +6,8 @@
       "maxPages": 941,
       "dynamicPagination": {
         "nextButton": "ul.pagination > li.next > a",
-        "waitTime": 10000,
-        "hasNextPage": "ul.pagination > li.next > a:not(.disabled)",
-        "retryAttempts": 3,
-        "retryDelay": 5000
+        "waitTime": 8000,
+        "hasNextPage": "ul.pagination > li.next > a:not(.disabled)"
       },
       "itemLink": {
         "selector": ".",
@@ -57,15 +55,14 @@
     "path": "./data/A1/Press-releases.json"
   },
   "behavior": {
-    "requestDelay": 4000,
-    "timeout": 150000,
-    "retryAttempts": 3,
-    "retryDelay": 6000,
+    "requestDelay": 3000,
+    "timeout": 120000,
     "javascript": true,
     "browserType": "chromium",
     "headless": true,
     "fastMode": false,
-    "waitForNetworkIdle": true,
+    "retryAttempts": 3,
+    "continueOnError": true,
     "headers": {
       "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
       "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

@@ -46,17 +46,6 @@ export declare class Crawler {
      * 爬取详情页
      * @param url 详情页URL
      */
-    /**
-     * 带重试机制的详情页爬取
-     * @param url 详情页URL
-     */
-    private crawlDetailPageWithRetry;
-    /**
-     * 记录失败的URL
-     * @param url 失败的URL
-     * @param error 错误信息
-     */
-    private logFailedUrl;
     private crawlDetailPage;
     /**
      * 提取字段

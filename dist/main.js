@@ -152,7 +152,7 @@ async function main() {
     console.log('所有爬虫任务已完成');
 }
 // 执行主函数
-main().catch(error => {
+main().catch((error) => {
     console.error('未处理的错误:', error);
     process.exit(1);
 });
