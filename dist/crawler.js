@@ -37,6 +37,8 @@ exports.Crawler = void 0;
 const playwright_1 = require("playwright");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const https = __importStar(require("https"));
+const http = __importStar(require("http"));
 /**
  * 网络爬虫类
  */
@@ -439,6 +441,15 @@ class Crawler {
                         data[fieldName] = null;
                     }
                 }
+                // 下载PDF（如果配置了）
+                if (this.config.downloadPDF?.enabled && data.PDF && data[this.config.downloadPDF.filenameField]) {
+                    try {
+                        await this.downloadPDF(data.PDF, data[this.config.downloadPDF.filenameField]);
+                    }
+                    catch (error) {
+                        console.warn(`PDF下载失败: ${error}`);
+                    }
+                }
                 // 创建爬取结果项
                 const item = {
                     url,
@@ -829,6 +840,58 @@ class Crawler {
             console.error('保存结果失败:', error);
             throw error;
         }
+    }
+    /**
+     * 下载PDF文件
+     * @param pdfUrl PDF文件URL
+     * @param filename 文件名
+     */
+    async downloadPDF(pdfUrl, filename) {
+        if (!this.config.downloadPDF)
+            return;
+        const { downloadPath, fileExtension } = this.config.downloadPDF;
+        // 确保下载目录存在
+        if (!fs.existsSync(downloadPath)) {
+            fs.mkdirSync(downloadPath, { recursive: true });
+        }
+        // 清理文件名，移除非法字符
+        const cleanFilename = filename.replace(/[<>:"/\\|?*]/g, '_');
+        const fullFilename = cleanFilename + fileExtension;
+        const filePath = path.join(downloadPath, fullFilename);
+        // 如果文件已存在，跳过下载
+        if (fs.existsSync(filePath)) {
+            console.log(`PDF文件已存在，跳过下载: ${fullFilename}`);
+            return;
+        }
+        console.log(`开始下载PDF: ${fullFilename}`);
+        return new Promise((resolve, reject) => {
+            const protocol = pdfUrl.startsWith('https:') ? https : http;
+            const request = protocol.get(pdfUrl, (response) => {
+                if (response.statusCode === 200) {
+                    const fileStream = fs.createWriteStream(filePath);
+                    response.pipe(fileStream);
+                    fileStream.on('finish', () => {
+                        fileStream.close();
+                        console.log(`PDF下载完成: ${fullFilename}`);
+                        resolve();
+                    });
+                    fileStream.on('error', (error) => {
+                        fs.unlink(filePath, () => { }); // 删除不完整的文件
+                        reject(error);
+                    });
+                }
+                else {
+                    reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+                }
+            });
+            request.on('error', (error) => {
+                reject(error);
+            });
+            request.setTimeout(30000, () => {
+                request.destroy();
+                reject(new Error('下载超时'));
+            });
+        });
     }
     /**
      * 获取爬虫状态

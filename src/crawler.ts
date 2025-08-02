@@ -8,6 +8,8 @@ import {
 } from 'playwright'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as https from 'https'
+import * as http from 'http'
 import { CrawlerConfig, CrawlItem, CrawlerStatus, FieldSelector } from './types'
 
 /**
@@ -480,6 +482,15 @@ export class Crawler {
           } catch (error) {
             console.warn(`提取字段 ${fieldName} 失败:`, error)
             data[fieldName] = null
+          }
+        }
+
+        // 下载PDF（如果配置了）
+        if (this.config.downloadPDF?.enabled && data.PDF && data[this.config.downloadPDF.filenameField]) {
+          try {
+            await this.downloadPDF(data.PDF, data[this.config.downloadPDF.filenameField])
+          } catch (error) {
+            console.warn(`PDF下载失败: ${error}`)
           }
         }
 
@@ -965,6 +976,68 @@ export class Crawler {
       console.error('保存结果失败:', error)
       throw error
     }
+  }
+
+  /**
+   * 下载PDF文件
+   * @param pdfUrl PDF文件URL
+   * @param filename 文件名
+   */
+  private async downloadPDF(pdfUrl: string, filename: string): Promise<void> {
+    if (!this.config.downloadPDF) return
+
+    const { downloadPath, fileExtension } = this.config.downloadPDF
+    
+    // 确保下载目录存在
+    if (!fs.existsSync(downloadPath)) {
+      fs.mkdirSync(downloadPath, { recursive: true })
+    }
+
+    // 清理文件名，移除非法字符
+    const cleanFilename = filename.replace(/[<>:"/\\|?*]/g, '_')
+    const fullFilename = cleanFilename + fileExtension
+    const filePath = path.join(downloadPath, fullFilename)
+
+    // 如果文件已存在，跳过下载
+    if (fs.existsSync(filePath)) {
+      console.log(`PDF文件已存在，跳过下载: ${fullFilename}`)
+      return
+    }
+
+    console.log(`开始下载PDF: ${fullFilename}`)
+
+    return new Promise((resolve, reject) => {
+      const protocol = pdfUrl.startsWith('https:') ? https : http
+      
+      const request = protocol.get(pdfUrl, (response) => {
+        if (response.statusCode === 200) {
+          const fileStream = fs.createWriteStream(filePath)
+          response.pipe(fileStream)
+          
+          fileStream.on('finish', () => {
+            fileStream.close()
+            console.log(`PDF下载完成: ${fullFilename}`)
+            resolve()
+          })
+          
+          fileStream.on('error', (error) => {
+            fs.unlink(filePath, () => {}) // 删除不完整的文件
+            reject(error)
+          })
+        } else {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`))
+        }
+      })
+      
+      request.on('error', (error) => {
+        reject(error)
+      })
+      
+      request.setTimeout(30000, () => {
+        request.destroy()
+        reject(new Error('下载超时'))
+      })
+    })
   }
 
   /**

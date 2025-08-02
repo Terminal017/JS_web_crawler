@@ -1,13 +1,14 @@
 {
   "startUrls": [
-    "https://web.senate.gov.ph/lis/journal.aspx?congress=19&session=1R&q=77"
+    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=14&type=bill"
   ],
   "selectors": {
     "listPage": {
-      "items": "ul.lis_ul > li",
-      "maxPages": 1,
+      "items": "div.alight > p > a",
+      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
+      "maxPages": 145,
       "itemLink": {
-        "selector": "a",
+        "selector": ".",
         "extract": "attribute",
         "attribute": "href"
       }
@@ -27,12 +28,12 @@
         "content": {
           "type": "object",
           "fields": {
-            "author": {
-              "selector": "作者选择器",
+            "datetime": {
+              "selector": "#lis_download > ul > li > small:nth-child(3)",
               "extract": "text",
               "default": "unknown"
             },
-            "article": {
+            "longTitle": {
               "selector": "#content > blockquote",
               "extract": "text"
             }
@@ -42,13 +43,24 @@
           "selector": "#lis_download > ul > li > a",
           "extract": "attribute",
           "attribute": "href"
+        },
+        "pdfId": {
+          "selector": "#lis_download > ul > li > a",
+          "extract": "text",
+          "default": "unknown"
         }
       }
     }
   },
   "output": {
     "type": "json",
-    "path": "./data/A2/B1-config.json"
+    "path": "./data/A2/Bill14.json"
+  },
+  "downloadPDF": {
+    "enabled": true,
+    "downloadPath": "./data/A2/Bill14_PDF",
+    "filenameField": "pdfId",
+    "fileExtension": ".pdf"
   },
   "behavior": {
     "requestDelay": 2000,
@@ -69,10 +81,11 @@
       "title": "$.title",
       "href": "$.href",
       "content": {
-        "author": "$.content.author",
-        "article": "$.content.article"
+        "datetime": "$.content.datetime",
+        "longTitle": "$.content.longTitle"
       },
-      "PDF": "$.PDF"
+      "PDF": "$.PDF",
+      "pdfId": "$.pdfId"
     }
   }
 }

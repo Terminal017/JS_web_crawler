@@ -1,0 +1,90 @@
+{
+  "startUrls": [
+    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=20&type=resolution"
+  ],
+  "selectors": {
+    "listPage": {
+      "items": "div.alight > p > a",
+      "maxPages": 1,
+      "itemLink": {
+        "selector": ".",
+        "extract": "attribute",
+        "attribute": "href"
+      }
+    },
+    "detailPage": {
+      "fields": {
+        "id": {
+          "default": "{{filename}}"
+        },
+        "title": {
+          "selector": "div.lis_doctitle > p",
+          "extract": "text"
+        },
+        "href": {
+          "default": "{{currentUrl}}"
+        },
+        "content": {
+          "type": "object",
+          "fields": {
+            "datetime": {
+              "selector": "#lis_download > ul > li > small:nth-child(3)",
+              "extract": "text",
+              "default": "unknown"
+            },
+            "longTitle": {
+              "selector": "#content > blockquote",
+              "extract": "text"
+            }
+          }
+        },
+        "PDF": {
+          "selector": "#lis_download > ul > li > a",
+          "extract": "attribute",
+          "attribute": "href"
+        },
+        "pdfId": {
+          "selector": "#lis_download > ul > li > a",
+          "extract": "text",
+          "default": "unknown"
+        }
+      }
+    }
+  },
+  "output": {
+    "type": "json",
+    "path": "./data/A2/resolution.json"
+  },
+  "downloadPDF": {
+    "enabled": true,
+    "downloadPath": "./data/A2/resolution_PDF",
+    "filenameField": "pdfId",
+    "fileExtension": ".pdf"
+  },
+  "behavior": {
+    "requestDelay": 2000,
+    "timeout": 30000,
+    "javascript": true,
+    "browserType": "chromium",
+    "fastMode": true,
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+    }
+  },
+  "postProcess": {
+    "transformOutput": true,
+    "outputFormat": {
+      "id": "$.id",
+      "title": "$.title",
+      "href": "$.href",
+      "content": {
+        "datetime": "$.content.datetime",
+        "longTitle": "$.content.longTitle"
+      },
+      "PDF": "$.PDF",
+      "pdfId": "$.pdfId"
+    }
+  }
+}

@@ -82,6 +82,12 @@ export declare class Crawler {
     private saveItemIncremental;
     private saveResults;
     /**
+     * 下载PDF文件
+     * @param pdfUrl PDF文件URL
+     * @param filename 文件名
+     */
+    private downloadPDF;
+    /**
      * 获取爬虫状态
      */
     getStatus(): CrawlerStatus;

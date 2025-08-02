@@ -64,6 +64,17 @@ export interface CrawlerConfig {
     /** 遇到错误时是否继续执行 - true时跳过失败页面继续爬取 */
     continueOnError?: boolean
   }
+  /** PDF下载配置 */
+  downloadPDF?: {
+    /** 是否启用PDF下载 */
+    enabled: boolean
+    /** PDF下载路径 */
+    downloadPath: string
+    /** 用作文件名的字段名 */
+    filenameField: string
+    /** 文件扩展名 */
+    fileExtension: string
+  }
 }
 
 /**
