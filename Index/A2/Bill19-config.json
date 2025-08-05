@@ -1,12 +1,12 @@
 {
   "startUrls": [
-    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=19&type=bill"
+    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=19&type=bill&p=102"
   ],
   "selectors": {
     "listPage": {
       "items": "div.alight > p > a",
-      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
-      "maxPages": 121,
+      "nextPage": "#pnl_NavBottom > div > div > a:last-child",
+      "maxPages": 20,
       "itemLink": {
         "selector": ".",
         "extract": "attribute",

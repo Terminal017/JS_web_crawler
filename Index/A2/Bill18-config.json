@@ -1,12 +1,12 @@
 {
   "startUrls": [
-    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=18&type=bill"
+    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=18&type=bill&p=72"
   ],
   "selectors": {
     "listPage": {
       "items": "div.alight > p > a",
-      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
-      "maxPages": 101,
+      "nextPage": "#pnl_NavBottom > div > div > a:last-child",
+      "maxPages": 30,
       "itemLink": {
         "selector": ".",
         "extract": "attribute",

@@ -5,7 +5,7 @@
   "selectors": {
     "listPage": {
       "items": "div.alight > p > a",
-      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
+      "nextPage": "#pnl_NavBottom > div > div > a:last-child",
       "maxPages": 8,
       "itemLink": {
         "selector": ".",
@@ -63,7 +63,7 @@
     "fileExtension": ".pdf"
   },
   "behavior": {
-    "requestDelay": 2000,
+    "requestDelay": 5000,
     "timeout": 30000,
     "javascript": true,
     "browserType": "chromium",

@@ -5,7 +5,7 @@
   "selectors": {
     "listPage": {
       "items": "div.alight > p > a",
-      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
+      "nextPage": "#pnl_NavBottom > div > div > a:last-child",
       "maxPages": 90,
       "itemLink": {
         "selector": ".",

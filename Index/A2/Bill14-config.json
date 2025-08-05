@@ -1,12 +1,12 @@
 {
   "startUrls": [
-    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=14&type=bill"
+    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=14&type=bill&p=125"
   ],
   "selectors": {
     "listPage": {
       "items": "div.alight > p > a",
-      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
-      "maxPages": 145,
+      "nextPage": "#pnl_NavBottom > div > div > a:last-child",
+      "maxPages": 21,
       "itemLink": {
         "selector": ".",
         "extract": "attribute",

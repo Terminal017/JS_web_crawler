@@ -442,7 +442,9 @@ class Crawler {
                     }
                 }
                 // 下载PDF（如果配置了）
-                if (this.config.downloadPDF?.enabled && data.PDF && data[this.config.downloadPDF.filenameField]) {
+                if (this.config.downloadPDF?.enabled &&
+                    data.PDF &&
+                    data[this.config.downloadPDF.filenameField]) {
                     try {
                         await this.downloadPDF(data.PDF, data[this.config.downloadPDF.filenameField]);
                     }
@@ -480,7 +482,7 @@ class Crawler {
                 else {
                     console.warn(`爬取详情页失败 ${url} (尝试 ${attempt}/${retryAttempts}):`, error);
                     // 等待一段时间后重试
-                    await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+                    await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
                 }
             }
         }
@@ -863,7 +865,6 @@ class Crawler {
             console.log(`PDF文件已存在，跳过下载: ${fullFilename}`);
             return;
         }
-        console.log(`开始下载PDF: ${fullFilename}`);
         return new Promise((resolve, reject) => {
             const protocol = pdfUrl.startsWith('https:') ? https : http;
             const request = protocol.get(pdfUrl, (response) => {
@@ -872,7 +873,6 @@ class Crawler {
                     response.pipe(fileStream);
                     fileStream.on('finish', () => {
                         fileStream.close();
-                        console.log(`PDF下载完成: ${fullFilename}`);
                         resolve();
                     });
                     fileStream.on('error', (error) => {

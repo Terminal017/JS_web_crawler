@@ -1,12 +1,12 @@
 {
   "startUrls": [
-    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=15&type=bill"
+    "https://web.senate.gov.ph/lis/leg_sys.aspx?congress=15&type=bill&p=137"
   ],
   "selectors": {
     "listPage": {
       "items": "div.alight > p > a",
-      "nextPage": "#pnl_NavBottom > div > div > a:nth-child(9)",
-      "maxPages": 137,
+      "nextPage": "#pnl_NavBottom > div > div > a:last-child",
+      "maxPages": 1,
       "itemLink": {
         "selector": ".",
         "extract": "attribute",

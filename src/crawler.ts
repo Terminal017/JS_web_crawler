@@ -187,7 +187,7 @@ export class Crawler {
       if (itemCount === 0) {
         const continueOnError = this.config.behavior?.continueOnError || false
         const errorMsg = `选择器 "${items}" 未找到任何元素`
-        
+
         if (continueOnError) {
           console.warn(`${errorMsg}，跳过此页面`)
           return
@@ -247,7 +247,7 @@ export class Crawler {
           await this.crawlDetailPage(detailUrl)
         } catch (error) {
           const continueOnError = this.config.behavior?.continueOnError || false
-          
+
           if (continueOnError) {
             console.warn(`跳过失败的详情页: ${detailUrl}，错误:`, error)
             continue // 继续处理下一个详情页
@@ -452,13 +452,13 @@ export class Crawler {
 
     const retryAttempts = this.config.behavior?.retryAttempts || 1
     const continueOnError = this.config.behavior?.continueOnError || false
-    
+
     for (let attempt = 1; attempt <= retryAttempts; attempt++) {
       const page = await this.context.newPage()
-      
+
       try {
         // console.log(`爬取详情页: ${url} (尝试 ${attempt}/${retryAttempts})`);
-        
+
         // 导航到详情页
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         this.status.urlsCrawled++
@@ -486,9 +486,16 @@ export class Crawler {
         }
 
         // 下载PDF（如果配置了）
-        if (this.config.downloadPDF?.enabled && data.PDF && data[this.config.downloadPDF.filenameField]) {
+        if (
+          this.config.downloadPDF?.enabled &&
+          data.PDF &&
+          data[this.config.downloadPDF.filenameField]
+        ) {
           try {
-            await this.downloadPDF(data.PDF, data[this.config.downloadPDF.filenameField])
+            await this.downloadPDF(
+              data.PDF,
+              data[this.config.downloadPDF.filenameField],
+            )
           } catch (error) {
             console.warn(`PDF下载失败: ${error}`)
           }
@@ -507,17 +514,19 @@ export class Crawler {
         // 立即保存到文件（增量保存）
         await this.saveItemIncremental(item)
         // console.log(`成功提取数据: ${url}`);
-        
+
         await page.close()
         return // 成功则退出重试循环
-        
       } catch (error) {
         await page.close()
-        
+
         if (attempt === retryAttempts) {
           // 最后一次尝试失败
-          console.error(`爬取详情页失败 ${url} (已重试 ${retryAttempts} 次):`, error)
-          
+          console.error(
+            `爬取详情页失败 ${url} (已重试 ${retryAttempts} 次):`,
+            error,
+          )
+
           if (!continueOnError) {
             throw error // 如果不允许继续执行，则抛出错误
           } else {
@@ -525,9 +534,12 @@ export class Crawler {
             return // 跳过这个页面，继续执行
           }
         } else {
-          console.warn(`爬取详情页失败 ${url} (尝试 ${attempt}/${retryAttempts}):`, error)
+          console.warn(
+            `爬取详情页失败 ${url} (尝试 ${attempt}/${retryAttempts}):`,
+            error,
+          )
           // 等待一段时间后重试
-          await new Promise(resolve => setTimeout(resolve, 2000 * attempt))
+          await new Promise((resolve) => setTimeout(resolve, 2000 * attempt))
         }
       }
     }
@@ -987,7 +999,7 @@ export class Crawler {
     if (!this.config.downloadPDF) return
 
     const { downloadPath, fileExtension } = this.config.downloadPDF
-    
+
     // 确保下载目录存在
     if (!fs.existsSync(downloadPath)) {
       fs.mkdirSync(downloadPath, { recursive: true })
@@ -1004,35 +1016,34 @@ export class Crawler {
       return
     }
 
-    console.log(`开始下载PDF: ${fullFilename}`)
-
     return new Promise((resolve, reject) => {
       const protocol = pdfUrl.startsWith('https:') ? https : http
-      
+
       const request = protocol.get(pdfUrl, (response) => {
         if (response.statusCode === 200) {
           const fileStream = fs.createWriteStream(filePath)
           response.pipe(fileStream)
-          
+
           fileStream.on('finish', () => {
             fileStream.close()
-            console.log(`PDF下载完成: ${fullFilename}`)
             resolve()
           })
-          
+
           fileStream.on('error', (error) => {
             fs.unlink(filePath, () => {}) // 删除不完整的文件
             reject(error)
           })
         } else {
-          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`))
+          reject(
+            new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`),
+          )
         }
       })
-      
+
       request.on('error', (error) => {
         reject(error)
       })
-      
+
       request.setTimeout(30000, () => {
         request.destroy()
         reject(new Error('下载超时'))
