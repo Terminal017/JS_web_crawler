@@ -24,6 +24,11 @@ export declare class Crawler {
      */
     start(): Promise<CrawlItem[]>;
     /**
+     * 爬取索引页
+     * @param url 索引页URL
+     */
+    private crawlIndexPage;
+    /**
      * 爬取列表页
      * @param url 列表页URL
      */

@@ -134,7 +134,11 @@ class Crawler {
         try {
             // 处理起始URL
             for (const startUrl of this.config.startUrls) {
-                if (this.config.selectors.listPage) {
+                if (this.config.selectors.indexPage) {
+                    // 如果配置了索引页，则先爬取索引页获取列表页链接
+                    await this.crawlIndexPage(startUrl);
+                }
+                else if (this.config.selectors.listPage) {
                     // 如果配置了列表页，则爬取列表页
                     await this.crawlListPage(startUrl);
                 }
@@ -159,6 +163,132 @@ class Crawler {
         }
         finally {
             await this.close();
+        }
+    }
+    /**
+     * 爬取索引页
+     * @param url 索引页URL
+     */
+    async crawlIndexPage(url, currentPage = 1) {
+        if (!this.context)
+            throw new Error('浏览器上下文未初始化');
+        if (!this.config.selectors.indexPage)
+            throw new Error('未配置索引页选择器');
+        const { items, nextPage, maxPages } = this.config.selectors.indexPage;
+        // 检查是否达到最大页数限制
+        if (maxPages && currentPage > maxPages) {
+            return;
+        }
+        console.log(`爬取索引页: ${url} (第 ${currentPage} 页)`);
+        const page = await this.context.newPage();
+        try {
+            // 导航到索引页
+            await page.goto(url, { waitUntil: 'domcontentloaded' });
+            this.status.urlsCrawled++;
+            // 添加请求延迟
+            if (this.config.behavior?.requestDelay) {
+                await page.waitForTimeout(this.config.behavior.requestDelay);
+            }
+            // 等待页面加载完成
+            const waitTime = this.config.behavior?.fastMode ? 500 : 2000;
+            await page.waitForTimeout(waitTime);
+            // 检查选择器是否存在
+            const itemCount = await page.$$(items).then((els) => els.length);
+            console.log(`找到 ${itemCount} 个索引页链接`);
+            if (itemCount === 0) {
+                const continueOnError = this.config.behavior?.continueOnError || false;
+                const errorMsg = `索引页选择器 "${items}" 未找到任何元素`;
+                if (continueOnError) {
+                    console.warn(`${errorMsg}，跳过此页面`);
+                    return;
+                }
+                else {
+                    throw new Error(errorMsg);
+                }
+            }
+            // 获取所有索引页链接
+            const indexUrls = await page.$$eval(items, (elements, baseUrl) => {
+                return elements
+                    .map((el) => {
+                    let href = null;
+                    if (el.tagName === 'A') {
+                        href = el.getAttribute('href');
+                    }
+                    else {
+                        const link = el.querySelector('a');
+                        href = link ? link.getAttribute('href') : null;
+                    }
+                    if (!href)
+                        return null;
+                    try {
+                        return new URL(href, baseUrl).href;
+                    }
+                    catch {
+                        return null;
+                    }
+                })
+                    .filter((url) => url !== null);
+            }, url);
+            console.log(`提取到 ${indexUrls.length} 个索引页链接`);
+            // 爬取每个索引页（作为列表页处理）
+            for (const indexUrl of indexUrls) {
+                try {
+                    if (this.config.behavior?.requestDelay) {
+                        const delay = this.config.behavior.fastMode
+                            ? Math.min(this.config.behavior.requestDelay / 4, 200)
+                            : this.config.behavior.requestDelay;
+                        await new Promise((resolve) => setTimeout(resolve, delay));
+                    }
+                    await this.crawlListPage(indexUrl);
+                }
+                catch (error) {
+                    const continueOnError = this.config.behavior?.continueOnError || false;
+                    if (continueOnError) {
+                        console.warn(`跳过失败的索引页: ${indexUrl}，错误:`, error);
+                        continue;
+                    }
+                    else {
+                        throw error;
+                    }
+                }
+            }
+            // 处理索引页分页
+            if (nextPage) {
+                const nextPageUrl = await page
+                    .$eval(nextPage, (el, baseUrl) => {
+                    const href = el.getAttribute('href');
+                    if (!href)
+                        return null;
+                    try {
+                        return new URL(href, baseUrl).href;
+                    }
+                    catch {
+                        return null;
+                    }
+                }, url)
+                    .catch(() => null);
+                if (nextPageUrl) {
+                    if (this.config.behavior?.requestDelay) {
+                        const delay = this.config.behavior.fastMode
+                            ? Math.min(this.config.behavior.requestDelay / 4, 200)
+                            : this.config.behavior.requestDelay;
+                        await new Promise((resolve) => setTimeout(resolve, delay));
+                    }
+                    await this.crawlIndexPage(nextPageUrl, currentPage + 1);
+                }
+            }
+        }
+        catch (error) {
+            const continueOnError = this.config.behavior?.continueOnError || false;
+            if (continueOnError) {
+                console.warn(`爬取索引页失败: ${url}，错误:`, error);
+            }
+            else {
+                throw error;
+            }
+        }
+        finally {
+            await page.close();
         }
     }
     /**

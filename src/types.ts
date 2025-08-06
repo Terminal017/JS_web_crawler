@@ -6,6 +6,15 @@ export interface CrawlerConfig {
   startUrls: string[]
   /** 选择器配置 */
   selectors: {
+    /** 索引页选择器 - 用于三层结构：总索引页 -> 索引页 -> 详情页 */
+    indexPage?: {
+      /** 索引页链接选择器 */
+      items: string
+      /** 下一页链接选择器 */
+      nextPage?: string
+      /** 最大爬取页数 */
+      maxPages?: number
+    }
     /** 列表页选择器 */
     listPage?: {
       /** 列表项选择器 */

@@ -1,0 +1,79 @@
+{
+  "startUrls": ["https://elibrary.judiciary.gov.ph/thebookshelf/29"],
+  "selectors": {
+    "indexPage": {
+      "items": "#container_date > a"
+    },
+    "listPage": {
+      "items": "#container_title > ul > li > a"
+    },
+    "detailPage": {
+      "fields": {
+        "id": {
+          "default": "{{filename}}"
+        },
+        "title": {
+          "selector": ".single_content > center > h2",
+          "extract": "text"
+        },
+        "href": {
+          "default": "{{currentUrl}}"
+        },
+        "content": {
+          "type": "object",
+          "fields": {
+            "courtName": {
+              "selector": ".single_content > center > h2:nth-child(1)",
+              "extract": "text",
+              "default": "null"
+            },
+            "description": {
+              "selector": ".single_content > center > h3",
+              "extract": "text",
+              "default": "null"
+            },
+            "contentText": {
+              "selector": "div.single_content > div[align=\"JUSTIFY\"]",
+              "extract": "text"
+            }
+          }
+        },
+        "PDF": {
+          "default": "null"
+        }
+      }
+    }
+  },
+  "output": {
+    "type": "json",
+    "path": "./data/A3/Laws_Commonwealth_Act.json"
+  },
+  "behavior": {
+    "requestDelay": 3000,
+    "timeout": 120000,
+    "javascript": true,
+    "browserType": "chromium",
+    "headless": true,
+    "fastMode": false,
+    "retryAttempts": 3,
+    "continueOnError": true,
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9"
+    }
+  },
+  "postProcess": {
+    "transformOutput": true,
+    "outputFormat": {
+      "id": "$.id",
+      "title": "$.title",
+      "href": "$.href",
+      "content": {
+        "description": "$.content.description",
+        "contentText": "$.content.contentText"
+      },
+      "PDF": "$.PDF"
+    }
+  }
+}
