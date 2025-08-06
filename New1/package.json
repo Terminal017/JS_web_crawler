@@ -1,0 +1,22 @@
+{
+  "name": "senate-crawler",
+  "version": "1.0.0",
+  "description": "菲律宾参议院法案数据爬虫",
+  "main": "senate-crawler.js",
+  "scripts": {
+    "start": "node senate-crawler.js",
+    "install-deps": "npm install playwright",
+    "setup": "npm install && npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "keywords": [
+    "crawler",
+    "senate",
+    "philippines",
+    "bills"
+  ],
+  "author": "",
+  "license": "MIT"
+}
