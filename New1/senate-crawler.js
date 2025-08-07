@@ -73,7 +73,6 @@ async function extractPageData(page, url, billNumber) {
         },
         PDF: null,
         pdfId: 'unknown',
-        pdfPath: null,
       },
     }
 
@@ -134,14 +133,11 @@ async function extractPageData(page, url, billNumber) {
           data.data.pdfId = pdfText?.trim() || 'unknown'
 
           // 下载PDF
-          const pdfPath = await downloadPDF(
+          await downloadPDF(
             page,
             fullPdfUrl,
             `SBN-${billNumber}`,
           )
-          if (pdfPath) {
-            data.data.pdfPath = pdfPath
-          }
         }
       }
     } catch (error) {
@@ -232,7 +228,6 @@ async function main() {
           },
           PDF: null,
           pdfId: 'unknown',
-          pdfPath: null,
         },
       })
     } finally {
