@@ -29,7 +29,7 @@
   "homepage": "https://github.com/Terminal017/JS_web_crawler#readme",
   "devDependencies": {
     "@playwright/test": "^1.54.1",
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },

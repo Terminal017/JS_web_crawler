@@ -1,0 +1,50 @@
+{
+  "name": "coraltriangleinitiative",
+  "startUrls": ["https://coraltriangleinitiative.org/news"],
+  "selectors": {
+    "listPage": {
+      "items": ".views-field-title>span>a",
+      "maxPages": 44,
+      "itemLink": {
+        "selector": ".",
+        "extract": "attribute",
+        "attribute": "href"
+      }
+    },
+    "detailPage": {
+      "fields": {
+        "title": {
+          "selector": "h1",
+          "extract": "text"
+        },
+        "datetime": {
+          "selector": ".field-content>span",
+          "extract": "text",
+          "default": "unknown"
+        },
+        "newsContent": {
+          "selector": ".entry-content.my-paragraph>p",
+          "extract": "text",
+          "default": "No content available"
+        }
+      }
+    }
+  },
+  "output": {
+    "type": "json",
+    "path": "./data/A3/coraltriangleinitiative.json"
+  },
+  "behavior": {
+    "headless": false,
+    "requestDelay": 1500,
+    "timeout": 60000,
+    "javascript": true,
+    "browserType": "chromium",
+    "fastMode": true,
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8"
+    }
+  }
+}
